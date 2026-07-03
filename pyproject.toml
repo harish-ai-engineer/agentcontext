@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentcontext"
+version = "0.1.0"
+description = "The open context-engineering platform: turn any document into AI-ready, cited context for LLMs and agents."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AgentContext" }]
+keywords = ["rag", "llm", "context", "agents", "document-parsing", "retrieval", "embeddings"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Core has ZERO hard dependencies: the full parse->chunk->embed->retrieve->context
+# slice runs offline with only the standard library.
+dependencies = []
+
+[project.optional-dependencies]
+pdf = ["pypdf>=4.0"]
+docx = ["python-docx>=1.1"]
+openai = ["openai>=1.0"]
+all = ["pypdf>=4.0", "python-docx>=1.1", "openai>=1.0"]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+
+[project.scripts]
+agentcontext = "agentcontext.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/aanseaa/agentcontext"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentcontext"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
