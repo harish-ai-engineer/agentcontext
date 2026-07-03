@@ -2,6 +2,11 @@
 
 **Document parsing that never loses the plot — or the page number.**
 
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/harish-ai-engineer/agentcontext/releases)
+[![Zero dependencies](https://img.shields.io/badge/core%20deps-zero-brightgreen.svg)](./pyproject.toml)
+
 AgentContext converts documents into clean Markdown and structured JSON, and unlike other converters, **every block of output carries provenance**: source, page, hierarchical section path, and character span. When your agent cites something, you can prove where it came from.
 
 ```
@@ -26,9 +31,14 @@ If your LLM answer says *"revenue grew 12%"*, AgentContext lets you point at **p
 
 ## Install
 
+Not on PyPI yet — install straight from GitHub:
+
 ```bash
-pip install agentcontext                # txt / md / html — zero dependencies
-pip install "agentcontext[pdf,docx]"    # + PDF and DOCX
+# core: txt / md / html parsing, zero dependencies
+pip install git+https://github.com/harish-ai-engineer/agentcontext.git
+
+# with PDF + DOCX support
+pip install "agentcontext[pdf,docx] @ git+https://github.com/harish-ai-engineer/agentcontext.git"
 ```
 
 No GPU. No torch. No API keys. Pure parsing.
@@ -58,18 +68,22 @@ agentcontext parse report.pdf --json         # writes report.json (full document
 agentcontext parse report.pdf --cite inline  # markdown with provenance anchors
 ```
 
-## Supported formats (v0.1)
+## What the output looks like
 
-- **PDF** (digital / text-layer)
-- **DOCX**
-- **HTML**
-- **Markdown** (normalization + provenance) and plain text
+`--cite inline` gives you Markdown that renders normally but carries its receipts:
 
-OCR for scanned documents, PPTX, and XLSX are next on the [roadmap](#roadmap).
+```markdown
+# Refund Policy <!-- src: policy.md | Refund Policy -->
 
-## The Unified Document Model
+Customers may request a full refund within 30 days
+of purchase. <!-- src: policy.md | Refund Policy -->
 
-Every parser emits the same structure, so downstream code never cares what the source format was. Unknown provenance fields are **explicit `null`, never omitted** — a block without provenance is a bug:
+## Exceptions <!-- src: policy.md | Refund Policy > Exceptions -->
+
+Digital goods are excluded. <!-- src: policy.md | Refund Policy > Exceptions -->
+```
+
+`--json` gives you the full Unified Document Model. Unknown provenance fields are **explicit `null`, never omitted** — a block without provenance is a bug:
 
 ```json
 {
@@ -77,7 +91,8 @@ Every parser emits the same structure, so downstream code never cares what the s
   "metadata": {
     "title": null, "author": null, "created": null,
     "source_path": "/abs/path/report.pdf",
-    "sha256": "…", "parser": "pdf", "parser_version": "pdf-parser/0.1"
+    "sha256": "444cd23e4ba2b0a1…",
+    "parser": "pdf", "parser_version": "pdf-parser/0.1"
   },
   "blocks": [
     {
@@ -100,6 +115,15 @@ Every parser emits the same structure, so downstream code never cares what the s
 }
 ```
 
+## Supported formats (v0.1)
+
+- **PDF** (digital / text-layer)
+- **DOCX**
+- **HTML**
+- **Markdown** (normalization + provenance) and plain text
+
+OCR for scanned documents, PPTX, and XLSX are next on the [roadmap](#roadmap).
+
 ## Benchmarks
 
 A public benchmark against MarkItDown and Docling on a golden corpus (papers, reports, contracts, invoices) — measuring text accuracy, structure accuracy, table cell accuracy, and provenance accuracy — is under construction: see [BENCHMARKS.md](./BENCHMARKS.md).
@@ -113,7 +137,7 @@ We will publish the numbers even where we lose. Trust is the product.
 - **v0.3:** Embedding adapters, citation-aware retrieval helpers.
 - **Later:** Context packages for agents — retrieval that returns not just chunks, but summaries, tables, entities, and citations in one structured payload.
 
-The long-term vision is a full open context-engineering layer for AI agents. The short-term promise is simpler: **the most trustworthy parser you can put in a RAG pipeline.**
+The long-term vision is a full open context-engineering layer for AI agents (a working preview of the whole pipeline lives on the [`platform`](https://github.com/harish-ai-engineer/agentcontext/tree/platform) branch). The short-term promise is simpler: **the most trustworthy parser you can put in a RAG pipeline.**
 
 ## Design principles
 
@@ -141,6 +165,10 @@ register_parser(EpubParser())
 ```
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Author
+
+Built by **Harish** — [@harish-ai-engineer](https://github.com/harish-ai-engineer)
 
 ## License
 
