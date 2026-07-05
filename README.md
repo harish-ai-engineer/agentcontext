@@ -2,6 +2,8 @@
 
 **Document parsing that never loses the plot — or the page number.**
 
+[![CI](https://github.com/harish-ai-engineer/agentcontext/actions/workflows/ci.yml/badge.svg)](https://github.com/harish-ai-engineer/agentcontext/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/agentcontext-core.svg)](https://pypi.org/project/agentcontext-core/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/harish-ai-engineer/agentcontext/releases)

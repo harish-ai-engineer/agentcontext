@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: tests (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: pip install -e ".[all,dev]"
+      - name: Test
+        run: pytest -q
+      - name: CLI smoke test
+        shell: bash
+        run: |
+          printf '# Hello\n\nWorld with provenance.\n' > smoke.md
+          agentcontext parse smoke.md --stdout --cite inline | grep -q "<!-- src:"
+          agentcontext parse smoke.md --json --stdout | python -c "import json,sys; d=json.load(sys.stdin); assert d['udm_version']=='0.1' and d['metadata']['sha256']"
+
+  zero-dep-install:
+    name: core installs with zero dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build and install bare wheel
+        run: |
+          pip install build
+          python -m build --wheel
+          pip install dist/*.whl
+      - name: Verify no extra packages pulled in
+        run: |
+          python -c "import agentcontext; print(agentcontext.__version__)"
+          pip list --format=freeze | grep -vi -E "^(pip|setuptools|wheel|build|pyproject_hooks|packaging|agentcontext)" && exit 1 || echo "clean: zero runtime deps"
+
+  benchmark:
+    name: benchmark harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install with baselines
+        run: |
+          pip install -e ".[all,dev]"
+          pip install "markitdown[pdf,docx]"
+      - name: Regenerate corpus and run harness
+        run: |
+          python benchmarks/make_corpus.py
+          python benchmarks/harness.py --json results.json
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: results.json

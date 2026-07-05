@@ -56,7 +56,24 @@ Verified: 16/16 spec-compliance tests (`tests/test_udm.py`), live CLI checked.
 4. ~~Package publish~~ ✅ live on PyPI as `agentcontext-core` (plain name blocked
    by unrelated `agent-context` project); Linux/macOS install verification pending CI
 
-## v0.2 preview (do not build yet)
+## v0.2 plan
 
-OCR (Tesseract adapter via the Parser protocol), PPTX + XLSX parsers
-(already written — sitting on `platform`), provenance-preserving chunking.
+Theme: **provenance survives more formats and the first pipeline step.**
+Order of work (one at a time, tests + benchmarks before the next):
+
+1. **PPTX + XLSX parsers** — port from `platform` (stdlib zip+xml, already
+   written); slides carry `page`, sheets carry `section_path`; add corpus docs
+2. **Provenance-preserving chunking** — port `token`/`section` chunkers from
+   `platform`; every `Chunk` keeps the provenance list of its blocks. This is
+   the bridge from parser to context platform
+3. **OCR adapter** — Tesseract behind the existing Parser protocol as
+   `agentcontext-core[ocr]`; scanned-PDF corpus docs with lower confidence
+4. **Real-document corpus** — grow to 25+ real files; publish updated numbers
+5. **Docling baseline** — add to the benchmark table (CI-only install)
+
+Launch prep (done 2026-07-05): CI on 3 OSes × py3.10/3.12 + zero-dep install
+check + benchmark job; honest benchmark framing; `examples/rag_with_citations.py`;
+CI/PyPI badges; Discussions + good-first-issues.
+
+Still manual (owner): social preview image (repo Settings), demo GIF for the
+README, PyPI token rotation.
